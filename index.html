@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Visa Application</title>
+  <style>
+    :root{
+      --bg1:#f7f9fc;
+      --bg2:#eef2f8;
+
+      --gold1:#f7d77b;
+      --gold2:#d7a83a;
+
+      --silver1:#ffffff;
+      --silver2:#b8c1cc;
+
+      --cardA: rgba(255,255,255,.78);
+      --cardB: rgba(255,255,255,.58);
+
+      --text:#1c2430;
+      --muted: rgba(28,36,48,.62);
+
+      --shadow: 0 18px 55px rgba(10,20,35,.16);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(120% 110% at 12% 8%, rgba(247,215,123,.22) 0%, transparent 55%),
+        radial-gradient(120% 110% at 88% 0%, rgba(184,193,204,.18) 0%, transparent 55%),
+        linear-gradient(160deg, var(--bg1) 0%, var(--bg2) 100%);
+      display:flex;
+      justify-content:center;
+      align-items:stretch;
+      overflow-x:hidden;
+    }
+
+    .app{
+      width:100%;
+      max-width:520px;
+      min-height:100%;
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    header{
+      border-radius: var(--radius);
+      border: 1px solid rgba(215,168,58,.22);
+      background:
+        radial-gradient(140% 120% at 10% 0%, rgba(247,215,123,.28) 0%, transparent 60%),
+        radial-gradient(140% 120% at 90% 0%, rgba(184,193,204,.20) 0%, transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,.88), rgba(255,255,255,.62));
+      box-shadow: var(--shadow);
+      padding: 14px 14px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    header::before{
+      content:"";
+      position:absolute;
+      inset:-60px -60px auto -60px;
+      height:140px;
+      background: linear-gradient(90deg, transparent, rgba(247,215,123,.22), transparent);
+      transform: rotate(10deg);
+      opacity:.9;
+      pointer-events:none;
+    }
+    .title{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+    .badge{
+      width:34px;
+      height:34px;
+      border-radius: 12px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(184,193,204,.38);
+      box-shadow: 0 14px 28px rgba(10,20,35,.12);
+      flex: 0 0 auto;
+    }
+    .badge svg{
+      width:20px;
+      height:20px;
+      stroke: rgba(215,168,58,.95);
+      stroke-width: 2.6;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    header h1{
+      margin:0;
+      font-size: 20px;
+      font-weight: 950;
+      line-height:1.05;
+      text-align:center;
+      text-shadow: 0 10px 22px rgba(10,20,35,.14);
+    }
+
+    /* Improved "Visa" visibility */
+    header h1 .gold{
+      background: linear-gradient(90deg, #b77700 0%, var(--gold2) 35%, var(--gold1) 70%, #ffffff 120%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-stroke: 0.6px rgba(140,95,0,.55);
+      text-shadow:
+        0 10px 18px rgba(10,20,35,.18),
+        0 0 10px rgba(215,168,58,.25);
+      padding: 0 2px;
+    }
+
+    header p{
+      margin: 8px 0 0;
+      text-align:center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .stage{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .card{
+      width:100%;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--cardA), var(--cardB));
+      border: 1px solid rgba(184,193,204,.32);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .page{ display:none; animation: fadeIn .18s ease-out; }
+    .page.active{ display:block; }
+
+    @keyframes fadeIn{
+      from{ opacity:0; transform: translateY(6px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .country-btn{
+      width:100%;
+      border: 1px solid rgba(184,193,204,.35);
+      border-radius: 16px;
+      padding: 14px 12px;
+      background:
+        radial-gradient(140% 110% at 20% 0%, rgba(247,215,123,.22) 0%, transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,.88), rgba(255,255,255,.62));
+      color: var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      box-shadow: 0 14px 28px rgba(10,20,35,.10);
+      cursor:pointer;
+      position:relative;
+      transition: transform .14s ease, filter .14s ease, box-shadow .14s ease, border-color .14s ease;
+      outline:none;
+      overflow:hidden;
+    }
+    .country-btn:active{
+      transform: scale(0.985);
+      filter: brightness(0.98);
+      box-shadow: 0 10px 18px rgba(10,20,35,.10);
+    }
+    .country-btn.pulse{ animation: btnPulse .22s ease-out; }
+    @keyframes btnPulse{
+      0%{ transform: scale(1); }
+      55%{ transform: scale(0.985); }
+      100%{ transform: scale(1); }
+    }
+
+    .country-left{
+      display:flex;
+      flex-direction:column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .country-name{
+      font-weight: 900;
+      font-size: 14px;
+      letter-spacing: .2px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .country-sub{
+      font-size: 12px;
+      color: rgba(28,36,48,.60);
+    }
+
+    .chip{
+      flex: 0 0 auto;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: .2px;
+      background: rgba(255,255,255,.65);
+      border: 1px solid rgba(184,193,204,.40);
+      color: rgba(28,36,48,.80);
+    }
+
+    .country-btn.selected{
+      border-color: rgba(215,168,58,.55);
+      box-shadow: 0 18px 40px rgba(10,20,35,.14);
+    }
+    .country-btn.selected .chip{
+      background: linear-gradient(90deg, rgba(247,215,123,.35), rgba(255,255,255,.75));
+      border-color: rgba(215,168,58,.55);
+      color: rgba(140,95,0,.92);
+    }
+
+    .actions{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+    }
+
+    .primary-btn{
+      width:100%;
+      border:0;
+      padding: 16px 14px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 950;
+      color: #1f1a10;
+      background: linear-gradient(135deg, var(--gold1) 0%, var(--gold2) 60%, #ffffff 135%);
+      box-shadow: 0 16px 32px rgba(10,20,35,.14);
+      cursor:pointer;
+      outline:none;
+      position:relative;
+      overflow:hidden;
+      transition: transform .14s ease, filter .14s ease, box-shadow .14s ease;
+    }
+    .primary-btn:active{
+      transform: scale(0.985);
+      filter: brightness(0.98);
+      box-shadow: 0 10px 18px rgba(10,20,35,.12);
+    }
+    .primary-btn:disabled{
+      opacity: .55;
+      cursor: not-allowed;
+      filter: grayscale(.2);
+    }
+
+    .ripple{
+      position:absolute;
+      border-radius: 999px;
+      transform: translate(-50%, -50%);
+      pointer-events:none;
+      width: 14px;
+      height: 14px;
+      background: rgba(215,168,58,.35);
+      mix-blend-mode: multiply;
+      animation: ripple .55s ease-out forwards;
+    }
+    @keyframes ripple{
+      from{ opacity:.7; transform: translate(-50%,-50%) scale(1); }
+      to{ opacity:0; transform: translate(-50%,-50%) scale(18); }
+    }
+
+    .form{
+      display:grid;
+      gap: 12px;
+    }
+    .label{
+      font-size: 12px;
+      color: rgba(28,36,48,.62);
+      margin: 2px 2px -6px;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .input{
+      width:100%;
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(184,193,204,.40);
+      background: rgba(255,255,255,.72);
+      color: var(--text);
+      font-size: 15px;
+      outline:none;
+    }
+    .input::placeholder{ color: rgba(28,36,48,.45); }
+
+    .hint{
+      margin: 10px 0 0;
+      font-size: 12px;
+      color: rgba(28,36,48,.58);
+      text-align:center;
+    }
+
+    .summary{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+      justify-content:center;
+    }
+    .summary .pill{
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      background: rgba(255,255,255,.70);
+      border: 1px solid rgba(215,168,58,.28);
+      color: rgba(140,95,0,.92);
+    }
+
+    .overlay{
+      position: fixed;
+      inset: 0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(120% 120% at 20% 10%, rgba(247,215,123,.26) 0%, transparent 60%),
+        radial-gradient(120% 120% at 80% 0%, rgba(184,193,204,.22) 0%, transparent 60%),
+        linear-gradient(160deg, rgba(247,249,252,.92), rgba(238,242,248,.92));
+      z-index: 999;
+    }
+    .overlay.show{ display:flex; }
+
+    .checkWrap{
+      width: 150px;
+      height: 150px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.75);
+      border: 2px solid rgba(215,168,58,.32);
+      box-shadow: 0 28px 80px rgba(10,20,35,.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      animation: pop .22s ease-out;
+      position: relative;
+      z-index: 2;
+    }
+    @keyframes pop{
+      from{ transform: scale(.92); opacity: 0; }
+      to{ transform: scale(1); opacity: 1; }
+    }
+    .checkWrap svg{
+      width: 96px;
+      height: 96px;
+      stroke: rgba(215,168,58,.98);
+      stroke-width: 10;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 12px 22px rgba(10,20,35,.10));
+    }
+
+    canvas#confetti{
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 998;
+      display:none;
+    }
+    canvas#confetti.show{ display:block; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title">
+        <div class="badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M7 3h8a3 3 0 0 1 3 3v14a1 1 0 0 1-1 1H8a3 3 0 0 1-3-3V4a1 1 0 0 1 1-1z"></path>
+            <path d="M9 7h6"></path>
+            <path d="M9 11h6"></path>
+          </svg>
+        </div>
+        <h1><span class="gold">Visa</span> Application</h1>
+      </div>
+      <p>Select the country you want to visit</p>
+    </header>
+
+    <div class="stage">
+      <div class="card">
+        <section class="page active" id="page-1" aria-label="Choose countries">
+          <div class="grid" id="countriesGrid"></div>
+
+          <div class="actions">
+            <button class="primary-btn" id="continueBtn" type="button" disabled>Continue</button>
+          </div>
+
+          <p class="hint">You can select multiple options</p>
+        </section>
+
+        <section class="page" id="page-2" aria-label="Applicant form">
+          <div class="summary" id="selectedSummary"></div>
+
+          <div class="form">
+            <div class="label">Name</div>
+            <input class="input" id="nameInput" type="text" placeholder="Your name" />
+            <div class="label">Email</div>
+            <input class="input" id="emailInput" type="email" placeholder="Your email" />
+            <button class="primary-btn" id="getInsightsBtn" type="button">Get insights</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="confetti"></canvas>
+
+  <div class="overlay" id="successOverlay" aria-hidden="true">
+    <div class="checkWrap" aria-label="Success">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M16 34 L28 46 L48 20"></path>
+      </svg>
+    </div>
+  </div>
+
+  <script>
+    const pages = [
+      document.getElementById('page-1'),
+      document.getElementById('page-2')
+    ];
+
+    function showPage(index){
+      pages.forEach((p, i) => p.classList.toggle('active', i === index));
+    }
+
+    function addRipple(btn, e){
+      const rect = btn.getBoundingClientRect();
+      const x = (e.clientX || (rect.left + rect.width/2)) - rect.left;
+      const y = (e.clientY || (rect.top + rect.height/2)) - rect.top;
+
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      r.style.left = x + 'px';
+      r.style.top = y + 'px';
+      btn.appendChild(r);
+      r.addEventListener('animationend', () => r.remove(), { once: true });
+    }
+
+    function pulse(btn){
+      btn.classList.remove('pulse');
+      void btn.offsetWidth;
+      btn.classList.add('pulse');
+      btn.addEventListener('animationend', () => btn.classList.remove('pulse'), { once: true });
+    }
+
+    const countries = [
+      { name: "United States", code: "USA" },
+      { name: "United Kingdom", code: "UK" },
+      { name: "Canada", code: "CAN" },
+      { name: "France", code: "FRA" },
+      { name: "Germany", code: "DEU" },
+      { name: "Australia", code: "AUS" }
+    ];
+
+    const selected = new Set();
+    const grid = document.getElementById('countriesGrid');
+    const continueBtn = document.getElementById('continueBtn');
+
+    function renderCountries(){
+      grid.innerHTML = "";
+      countries.forEach((c) => {
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.className = "country-btn";
+        btn.setAttribute("data-name", c.name);
+
+        btn.innerHTML = `
+          <div class="country-left">
+            <div class="country-name">${c.name}</div>
+            <div class="country-sub">Destination</div>
+          </div>
+          <div class="chip">${c.code}</div>
+        `;
+
+        btn.addEventListener('click', (e) => {
+          addRipple(btn, e);
+          pulse(btn);
+
+          const name = btn.getAttribute('data-name');
+          if (selected.has(name)) {
+            selected.delete(name);
+            btn.classList.remove('selected');
+          } else {
+            selected.add(name);
+            btn.classList.add('selected');
+          }
+          continueBtn.disabled = selected.size === 0;
+        });
+
+        grid.appendChild(btn);
+      });
+    }
+    renderCountries();
+
+    continueBtn.addEventListener('click', (e) => {
+      addRipple(continueBtn, e);
+      pulse(continueBtn);
+
+      const summary = document.getElementById('selectedSummary');
+      summary.innerHTML = "";
+      [...selected].forEach((name) => {
+        const pill = document.createElement('div');
+        pill.className = "pill";
+        pill.textContent = name;
+        summary.appendChild(pill);
+      });
+
+      showPage(1);
+    });
+
+    const overlay = document.getElementById('successOverlay');
+    const getInsightsBtn = document.getElementById('getInsightsBtn');
+    const confettiCanvas = document.getElementById('confetti');
+    const ctx = confettiCanvas.getContext('2d');
+
+    let confetti = [];
+    let rafId = null;
+    let stopTimeout = null;
+
+    function resizeConfetti(){
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      confettiCanvas.width = Math.floor(window.innerWidth * dpr);
+      confettiCanvas.height = Math.floor(window.innerHeight * dpr);
+      confettiCanvas.style.width = window.innerWidth + "px";
+      confettiCanvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function rand(min, max){ return Math.random() * (max - min) + min; }
+
+    function spawnConfetti(count){
+      confetti = [];
+      const w = window.innerWidth;
+      for (let i=0; i<count; i++){
+        confetti.push({
+          x: rand(0, w),
+          y: rand(-window.innerHeight, -10),
+          vx: rand(-1.2, 1.2),
+          vy: rand(2.8, 5.4),
+          r: rand(6, 12),
+          rot: rand(0, Math.PI * 2),
+          vr: rand(-0.12, 0.12),
+          shape: Math.random() < 0.6 ? "rect" : "circle",
+          color: Math.random() < 0.5 ? "rgba(215,168,58,0.95)" : "rgba(184,193,204,0.95)"
+        });
+      }
+    }
+
+    function drawConfetti(){
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      for (const p of confetti){
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+
+        if (p.y > window.innerHeight + 30){
+          p.y = rand(-60, -10);
+          p.x = rand(0, window.innerWidth);
+        }
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+
+        if (p.shape === "rect"){
+          ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r * 0.65);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.r * 0.35, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+      rafId = requestAnimationFrame(drawConfetti);
+    }
+
+    function startCelebration(){
+      resizeConfetti();
+      spawnConfetti(140);
+      confettiCanvas.classList.add('show');
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(drawConfetti);
+
+      if (stopTimeout) clearTimeout(stopTimeout);
+      stopTimeout = setTimeout(() => {
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = null;
+        confettiCanvas.classList.remove('show');
+      }, 2200);
+    }
+
+    window.addEventListener('resize', () => {
+      if (confettiCanvas.classList.contains('show')) resizeConfetti();
+    });
+
+    getInsightsBtn.addEventListener('click', (e) => {
+      addRipple(getInsightsBtn, e);
+      pulse(getInsightsBtn);
+
+      const name = document.getElementById('nameInput').value || "";
+      const email = document.getElementById('emailInput').value || "";
+      void name; void email;
+
+      startCelebration();
+    });
+  </script>
+</body>
+</html>
